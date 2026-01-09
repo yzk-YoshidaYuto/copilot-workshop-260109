@@ -1,47 +1,40 @@
 // Jest tests for FizzBuzz implementation
 const { execSync } = require('child_process');
 
-// Helper function to run the fizzbuzz.js script and capture output
-function runFizzBuzz() {
-    const output = execSync('node fizzbuzz.js', { encoding: 'utf-8' });
-    return output.trim().split('\n');
+// Helper function to run the fizzBuzz function with a specific input
+function runFizzBuzz(input) {
+    try {
+        const output = execSync(`node -e "console.log(require('./fizzbuzz.js').fizzBuzz(${input}))"`, { encoding: 'utf-8' });
+        return output.trim();
+    } catch (error) {
+        return error.message;
+    }
 }
 
 describe('FizzBuzz Tests', () => {
-    let results;
-
-    beforeAll(() => {
-        results = runFizzBuzz();
+    test('should return Fizz for multiples of 3', () => {
+        expect(runFizzBuzz(3)).toBe('Fizz');
+        expect(runFizzBuzz(6)).toBe('Fizz');
     });
 
-    test('should print Fizz for multiples of 3', () => {
-        expect(results[2]).toBe('Fizz'); // 3
-        expect(results[5]).toBe('Fizz'); // 6
-        expect(results[8]).toBe('Fizz'); // 9
+    test('should return Buzz for multiples of 5', () => {
+        expect(runFizzBuzz(5)).toBe('Buzz');
+        expect(runFizzBuzz(10)).toBe('Buzz');
     });
 
-    test('should print Buzz for multiples of 5', () => {
-        expect(results[4]).toBe('Buzz'); // 5
-        expect(results[9]).toBe('Buzz'); // 10
-        expect(results[19]).toBe('Buzz'); // 20
+    test('should return FizzBuzz for multiples of 15', () => {
+        expect(runFizzBuzz(15)).toBe('FizzBuzz');
+        expect(runFizzBuzz(30)).toBe('FizzBuzz');
     });
 
-    test('should print FizzBuzz for multiples of 15', () => {
-        expect(results[14]).toBe('FizzBuzz'); // 15
+    test('should return the number for non-multiples of 3 or 5', () => {
+        expect(runFizzBuzz(1)).toBe('1');
+        expect(runFizzBuzz(2)).toBe('2');
     });
 
-    test('should print the number for non-multiples of 3 or 5', () => {
-        expect(results[0]).toBe('1'); // 1
-        expect(results[1]).toBe('2'); // 2
-        expect(results[3]).toBe('4'); // 4
-    });
-
-    // Failure cases
-    test('should fail if Fizz is not printed for 3', () => {
-        expect(results[2]).not.toBe('3');
-    });
-
-    test('should fail if Buzz is not printed for 5', () => {
-        expect(results[4]).not.toBe('5');
+    test('should throw an error for invalid inputs', () => {
+        expect(runFizzBuzz(-1)).toMatch(/Input must be a positive integer/);
+        expect(runFizzBuzz(0)).toMatch(/Input must be a positive integer/);
+        expect(runFizzBuzz('abc')).toMatch(/Input must be a positive integer/);
     });
 });
